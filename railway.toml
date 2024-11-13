@@ -2,13 +2,13 @@
 builder = "nixpacks"
 buildCommand = """
 cd api && 
-pip install -r requirements.txt && 
-pip install gunicorn torch transformers
+pip install -r requirements.txt &&
+pip install gevent grpcio monkey gunicorn
 """
 
 [deploy]
-startCommand = "cd api && python server.py"
-healthcheckPath = "/api/health"
+startCommand = "cd api && gunicorn -k gevent 'app:app' --bind 0.0.0.0:$PORT --workers 4 --timeout 120"
+healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 
@@ -16,7 +16,9 @@ restartPolicyType = "on_failure"
 nixPkgs = ["python310", "gcc", "python310Packages.pip"]
 
 [variables]
-FLASK_APP = "server.py"
+FLASK_APP = "app.py"
 FLASK_ENV = "production"
 HOST = "0.0.0.0"
 DEPLOY_ENV = "production"
+DEBUG = "false"
+TESTING = "false"
