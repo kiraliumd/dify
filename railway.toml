@@ -3,10 +3,16 @@ builder = "nixpacks"
 buildCommand = "cd api && pip install -r requirements.txt"
 
 [deploy]
-startCommand = "cd api && python app.py"
-healthcheckPath = "/"
+startCommand = "cd api && gunicorn app:app --bind 0.0.0.0:${PORT:-5000}"
+healthcheckPath = "/api/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 
 [phases.setup]
-nixPkgs = ["python310"]
+nixPkgs = ["python310", "gcc"]
+
+[variables]
+FLASK_APP = "app.py"
+FLASK_ENV = "production"
+HOST = "0.0.0.0"
+PORT = "5000"
