@@ -3,22 +3,46 @@ builder = "nixpacks"
 buildCommand = """
 cd api && 
 pip install -r requirements.txt &&
-pip install gevent grpcio monkey gunicorn
+pip install gevent grpcio gunicorn pydantic-settings flask-sqlalchemy
 """
 
 [deploy]
-startCommand = "cd api && gunicorn -k gevent 'app:app' --bind 0.0.0.0:$PORT --workers 4 --timeout 120"
+startCommand = "cd api && python -m gunicorn -k gevent -w 4 'app:app' --bind 0.0.0.0:$PORT"
 healthcheckPath = "/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
 
 [phases.setup]
-nixPkgs = ["python310", "gcc", "python310Packages.pip"]
+nixPkgs = ["python310", "gcc"]
 
 [variables]
-FLASK_APP = "app.py"
-FLASK_ENV = "production"
-HOST = "0.0.0.0"
+# Deployment configs
 DEPLOY_ENV = "production"
 DEBUG = "false"
 TESTING = "false"
+EDITION = "SELF_HOSTED"
+LOG_LEVEL = "INFO"
+API_COMPRESSION_ENABLED = "false"
+
+# Database configs
+POSTGRES_HOST = "${PGHOST}"
+POSTGRES_PORT = "${PGPORT}"
+POSTGRES_USER = "${PGUSER}"
+POSTGRES_PASSWORD = "${PGPASSWORD}"
+POSTGRES_DB = "${PGDATABASE}"
+SQLALCHEMY_DATABASE_URI = "${DATABASE_URL}"
+REDIS_HOST = "${REDISHOST}"
+REDIS_PORT = "${REDISPORT}"
+REDIS_USERNAME = "${REDISUSER}"
+REDIS_PASSWORD = "${REDISPASSWORD}"
+REDIS_DB = "0"
+
+# Web configs
+CONSOLE_API_URL = "${RAILWAY_PUBLIC_DOMAIN}"
+CONSOLE_WEB_URL = "${RAILWAY_PUBLIC_DOMAIN}"
+WEB_API_CORS_ALLOW_ORIGINS = "*"
+
+# Service configs
+HTTP_REQUEST_MAX_READ_TIMEOUT = "60"
+HTTP_REQUEST_MAX_WRITE_TIMEOUT = "30"
+CODE_EXECUTION_ENDPOINT = "http://sandbox:8194/"
