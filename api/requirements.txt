@@ -1,0 +1,11 @@
+flask==2.3.3
+gevent==23.9.1
+grpcio==1.59.0
+gunicorn==21.2.0
+pydantic-settings==2.0.3
+SQLAlchemy==2.0.21
+flask-sqlalchemy==3.1.1
+python-dotenv==1.0.0
+yarl==1.9.2
+redis==5.0.1
+psycopg2-binary==2.9.9
